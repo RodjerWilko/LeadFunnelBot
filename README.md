@@ -103,7 +103,7 @@ docker compose -f docker-compose.prod.yml run --rm bot alembic upgrade head
 
 ## Screenshots
 
-_(Скриншоты интерфейса бота и админки можно добавить позже.)_
+
 
 ## Переменные окружения (.env)
 
