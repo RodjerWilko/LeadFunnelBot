@@ -17,6 +17,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 router = Router()
+segments_router = router
 
 
 @router.callback_query(lambda c: c.data and c.data.startswith("segment:"))

@@ -16,6 +16,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 router = Router()
+lead_router = router
 
 
 class LeadStates(StatesGroup):

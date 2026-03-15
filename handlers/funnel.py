@@ -11,6 +11,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 router = Router()
+funnel_router = router
 
 NAV_SEGMENTS_TEXT = (
     "👋 Выберите интересующее направление 👇"
