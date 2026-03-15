@@ -1,0 +1,7 @@
+aiogram>=3.15
+sqlalchemy[asyncio]>=2.0.36
+asyncpg
+python-dotenv
+apscheduler>=3.10
+greenlet
+alembic

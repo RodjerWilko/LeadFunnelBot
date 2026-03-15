@@ -1,0 +1,2 @@
+Generic single-database configuration for async SQLAlchemy.
+Migration 001_initial_schema creates: users, segments, funnels, funnel_steps, leads (with Segment.is_active).
