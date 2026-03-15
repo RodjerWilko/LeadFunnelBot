@@ -1,4 +1,4 @@
-# handlers/start.py — /start и стартовый экран
+# handlers/start.py — /start и стартовый экран (Single-Message UI)
 from __future__ import annotations
 
 from aiogram import Router
@@ -8,6 +8,7 @@ from aiogram.types import Message
 from keyboards.segments import segments_keyboard
 from services.user_service import get_or_create_user
 from services.funnel_service import get_active_segments
+from services.ui_service import save_user_ui_message
 from utils.logger import get_logger
 
 logger = get_logger(__name__)
@@ -24,7 +25,7 @@ START_TEXT = (
 
 @router.message(CommandStart())
 async def cmd_start(message: Message, session) -> None:
-    """Обработка /start: создание/получение пользователя, показ сегментов."""
+    """Обработка /start: один экран — одно сообщение, сохраняем как главное UI."""
     if not message.from_user:
         return
     logger.info("Received /start from user_id=%s", message.from_user.id)
@@ -42,7 +43,11 @@ async def cmd_start(message: Message, session) -> None:
             )
             return
         kb = segments_keyboard([(s.id, s.name) for s in segments])
-        await message.answer(START_TEXT, reply_markup=kb)
+        sent = await message.answer(START_TEXT, reply_markup=kb)
+        await save_user_ui_message(
+            session, user.id, sent.chat.id, sent.message_id
+        )
+        logger.info("UI message created: user_id=%s message_id=%s", user.id, sent.message_id)
     except Exception as e:
         logger.exception("Ошибка в /start: %s", e)
         try:

@@ -2,9 +2,9 @@
 
 ## GitHub
 
-- Репозиторий: https://github.com/RodjerWilko/LeadFunnelBot
-- Обновлён: коммит "Release LeadFunnelBot v1.0.0"
-- В репозитории присутствуют: README.md, docker-compose.prod.yml, Dockerfile, alembic/, scripts/deploy.sh, requirements.txt, .env.example, reports/
+- Репозиторий обновлён: https://github.com/RodjerWilko/LeadFunnelBot
+- Ветка **main**, коммит: `Release LeadFunnelBot v1.0.0`
+- В репозитории есть: README.md, docker-compose.prod.yml, Dockerfile, alembic/, scripts/deploy.sh, requirements.txt, .env.example, reports/
 
 ## Сервер
 
@@ -41,7 +41,7 @@
 1. Подключиться по SSH к серверу.
 2. Создать БД: `docker exec -it shop-bot-db-1 psql -U shopbot -c "CREATE DATABASE leadfunnelbot;"`
 3. Клонировать или обновить репо: `git clone https://github.com/RodjerWilko/LeadFunnelBot` или `cd LeadFunnelBot && git pull`
-4. Создать `.env` в корне проекта с переменными: BOT_TOKEN, DATABASE_URL=postgresql+asyncpg://shopbot:shopbot@shop-bot-db-1:5432/leadfunnelbot, ADMIN_ID=52178124, RATE_LIMIT_MESSAGES=5, RATE_LIMIT_PERIOD=2, BROADCAST_DELAY=0.05
+4. Создать `.env` в корне проекта (скопировать из `.env.example` и заполнить). Обязательно: `BOT_TOKEN`, `DATABASE_URL=postgresql+asyncpg://shopbot:shopbot@shop-bot-db-1:5432/leadfunnelbot`, `ADMIN_ID=52178124`. По желанию: `RATE_LIMIT_MESSAGES=5`, `RATE_LIMIT_PERIOD=2`, `BROADCAST_DELAY=0.05`
 5. Сборка: `docker compose -f docker-compose.prod.yml build`
 6. Миграции: `docker compose -f docker-compose.prod.yml run --rm bot alembic upgrade head`
 7. Запуск: `docker compose -f docker-compose.prod.yml up -d`

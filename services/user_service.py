@@ -1,10 +1,16 @@
-# services/user_service.py — работа с пользователями
+# services/user_service.py — работа с пользователями (включая UI context)
 from __future__ import annotations
 
 from sqlalchemy import select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from models.user import User
+
+
+async def get_user_by_id(session: AsyncSession, user_id: int) -> User | None:
+    """Получить пользователя по id."""
+    result = await session.execute(select(User).where(User.id == user_id))
+    return result.scalar_one_or_none()
 
 
 async def get_user_by_telegram_id(
@@ -65,3 +71,46 @@ async def get_all_users_telegram_ids(session: AsyncSession) -> list[int]:
     """Список telegram_id всех пользователей (для рассылки)."""
     result = await session.execute(select(User.telegram_id))
     return [row[0] for row in result.all()]
+
+
+async def update_user_ui_message(
+    session: AsyncSession, user_id: int, ui_message_id: int | None
+) -> bool:
+    """Обновить ui_message_id пользователя."""
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        return False
+    user.ui_message_id = ui_message_id
+    await session.commit()
+    return True
+
+
+async def update_user_chat(
+    session: AsyncSession, user_id: int, chat_id: int | None
+) -> bool:
+    """Обновить chat_id пользователя."""
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        return False
+    user.chat_id = chat_id
+    await session.commit()
+    return True
+
+
+async def update_user_ui_context(
+    session: AsyncSession,
+    user_id: int,
+    chat_id: int,
+    ui_message_id: int,
+) -> bool:
+    """Обновить chat_id и ui_message_id пользователя (основной экран)."""
+    result = await session.execute(select(User).where(User.id == user_id))
+    user = result.scalar_one_or_none()
+    if user is None:
+        return False
+    user.chat_id = chat_id
+    user.ui_message_id = ui_message_id
+    await session.commit()
+    return True

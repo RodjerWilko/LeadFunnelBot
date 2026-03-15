@@ -93,15 +93,25 @@ async def send_scheduled_funnel_step(
     telegram_id: int, step_id: int, session_factory: Any, bot: Any
 ) -> None:
     """
-    Отправить один запланированный шаг воронки пользователю.
-    Вызывается из job'а через run_coroutine_threadsafe.
+    Показать запланированный шаг воронки в основном UI-сообщении пользователя.
+    Редактирует сохранённое сообщение; при неудаче — отправляет новое и обновляет user.
     """
     from sqlalchemy import select
     from models.funnel_step import FunnelStep
+    from models.user import User
     from keyboards.funnel import funnel_step_keyboard
+    from services.ui_service import safe_edit_or_resend, save_user_ui_message
 
     try:
         async with session_factory() as session:
+            user_result = await session.execute(
+                select(User).where(User.telegram_id == telegram_id)
+            )
+            user = user_result.scalar_one_or_none()
+            if user is None:
+                logger.warning("Scheduled step: user telegram_id=%s not found", telegram_id)
+                return
+
             result = await session.execute(
                 select(FunnelStep).where(FunnelStep.id == step_id)
             )
@@ -111,17 +121,57 @@ async def send_scheduled_funnel_step(
                 return
             text = step.message_text
             kb = funnel_step_keyboard()
+
+            chat_id = user.chat_id
+            message_id = user.ui_message_id
+
+            if chat_id is not None and message_id is not None:
+                success, new_id = await safe_edit_or_resend(
+                    bot, chat_id, message_id, text, kb
+                )
+                if success:
+                    if new_id is not None:
+                        await save_user_ui_message(
+                            session, user.id, chat_id, new_id
+                        )
+                        logger.info(
+                            "Scheduled funnel step fallback resend, ui_message_id updated: "
+                            "user_id=%s step_id=%s",
+                            user.id,
+                            step_id,
+                        )
+                    else:
+                        logger.info(
+                            "Scheduled funnel step edit success: user_id=%s step_id=%s",
+                            user.id,
+                            step_id,
+                        )
+                    return
+                logger.warning(
+                    "Scheduled step edit failed, will try send: user_id=%s step_id=%s",
+                    user.id,
+                    step_id,
+                )
+
             try:
-                await bot.send_message(
+                sent = await bot.send_message(
                     chat_id=telegram_id,
                     text=text,
                     reply_markup=kb,
                 )
+                await save_user_ui_message(
+                    session, user.id, sent.chat.id, sent.message_id
+                )
+                logger.info(
+                    "Scheduled funnel step rendered (new message): user_id=%s step_id=%s",
+                    user.id,
+                    step_id,
+                )
             except Exception as e:
                 logger.error(
-                    "Отправка шага %s пользователю %s: %s",
+                    "Scheduler step failed: user_id=%s step_id=%s: %s",
+                    user.id,
                     step_id,
-                    telegram_id,
                     e,
                 )
     except Exception as e:

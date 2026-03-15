@@ -1,4 +1,4 @@
-# models/user.py — модель пользователя
+# models/user.py — модель пользователя (Single-Message UI: chat_id, ui_message_id)
 from __future__ import annotations
 
 from datetime import datetime
@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 
 class User(Base):
-    """Пользователь бота (Telegram)."""
+    """Пользователь бота (Telegram). Основной экран — одно сообщение (chat_id, ui_message_id)."""
 
     __tablename__ = "users"
 
@@ -27,6 +27,12 @@ class User(Base):
         ForeignKey("segments.id", ondelete="SET NULL"), nullable=True
     )
     created_at: Mapped[datetime] = mapped_column(DateTime, default=datetime.utcnow)
+    # Single-Message UI: какое сообщение редактировать
+    chat_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    ui_message_id: Mapped[int | None] = mapped_column(BigInteger, nullable=True)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime, default=datetime.utcnow, onupdate=datetime.utcnow, nullable=False
+    )
 
     segment: Mapped["Segment | None"] = relationship("Segment", back_populates="users")
     leads: Mapped[list["Lead"]] = relationship(

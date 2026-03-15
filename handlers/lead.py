@@ -10,6 +10,7 @@ from config.config import Config
 from keyboards.funnel import funnel_step_keyboard
 from services.user_service import get_user_by_telegram_id
 from services.lead_service import create_lead
+from services.ui_service import send_or_update_ui_message
 from services.funnel_service import get_segment_by_id
 from utils.logger import get_logger
 
@@ -113,7 +114,13 @@ async def lead_receive_message(
                 logger.exception("Отправка заявки админу: %s", e)
 
         await state.clear()
-        await message.answer(LEAD_CONFIRM, reply_markup=funnel_step_keyboard())
+        await send_or_update_ui_message(
+            message.bot,
+            session,
+            user,
+            LEAD_CONFIRM,
+            funnel_step_keyboard(),
+        )
     except Exception as e:
         logger.exception("lead_receive_message: %s", e)
         try:
