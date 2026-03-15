@@ -77,8 +77,8 @@
 ## Что задеплоено на VPS
 
 - Закоммичены и запушены изменения в GitHub.
-- Подключение к VPS через paramiko: git pull, alembic upgrade head, docker compose -f docker-compose.prod.yml up -d --build --force-recreate.
-- Миграции применены, контейнер перезапущен.
+- Подключение к VPS через paramiko: git pull, docker compose up -d --build --force-recreate.
+- Миграции: выполнены alembic stamp 001_initial и alembic upgrade head; применена 002_add_user_ui_message_fields (chat_id, ui_message_id, updated_at в users). Контейнер перезапущен.
 
 ## Результат проверки
 
