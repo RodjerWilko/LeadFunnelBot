@@ -13,6 +13,7 @@ from utils.logger import get_logger
 logger = get_logger(__name__)
 
 router = Router()
+start_router = router
 
 START_TEXT = (
     "👋 Добро пожаловать!\n\n"
@@ -26,6 +27,7 @@ async def cmd_start(message: Message, session) -> None:
     """Обработка /start: создание/получение пользователя, показ сегментов."""
     if not message.from_user:
         return
+    logger.info("Received /start from user_id=%s", message.from_user.id)
     try:
         user = await get_or_create_user(
             session,
