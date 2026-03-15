@@ -102,7 +102,6 @@ docker compose -f docker-compose.prod.yml run --rm bot alembic upgrade head
 
 ## Screenshots
 
-_(Скриншоты можно добавить позже. Папка для размещения: `docs/screenshots/` — funnel.png, admin.png.)_
 
 ---
 
